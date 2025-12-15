@@ -4,10 +4,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); // use to delete image
 const Student = require('../models/students.model');
+const cloudinary = require("../config/cloudinary");
 
 
 //################################ for image upload ##############################
 // @@@@@@@@@@@@@@@@@@@@@@ step 1 @@@@@@@@@@@@@@@@@@@
+
+
 const storage = multer.diskStorage({
     destination:(req, file, cb) => {
         cb(null, './uploads')
@@ -25,13 +28,19 @@ const fileFilter = (req, file, cb) => {
         cb(new Error('Only images are allowed!'), false)
     }
 }
+// const upload = multer({
+//     storage: storage,
+//     fileFilter: fileFilter,
+//     limit: {
+//         fileSize: 1024 * 1024 * 3, // 3MB
+//     }
+// })
+
 const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limit: {
-        fileSize: 1024 * 1024 * 3, // 3MB
-    }
-})
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 1024 * 1024 * 3 },
+});
+
 // @@@@@@@@@@@@@@@@@@@@@@ end of step 1 @@@@@@@@@@@@@@@@@@@
 
 // Get All Students
@@ -82,18 +91,40 @@ router.get('/:id', async (req, res) => {
 
 
 //Add new Student
-router.post('/', upload.single('profile_pic'), async (req, res) => {
-    try {
-        // const newStudent = await Student.create(req.body);
-        const student = new Student(req.body);
-        if (req.file) {
-            student.profile_pic = req.file.filename;
-        }
-        const newStudent = await student.save();
-        res.status(201).json(newStudent);
-    }catch(err) {
-        res.status(500).json({ message: err.message });
+// router.post('/', upload.single('profile_pic'), async (req, res) => {
+//     try {
+//         // const newStudent = await Student.create(req.body);
+//         const student = new Student(req.body);
+//         if (req.file) {
+//             student.profile_pic = req.file.filename;
+//         }
+//         const newStudent = await student.save();
+//         res.status(201).json(newStudent);
+//     }catch(err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// });
+
+
+router.post("/", upload.single("profile_pic"), async (req, res) => {
+  try {
+    const studentData = req.body;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+        { folder: "students" }
+      );
+
+      studentData.profile_pic = result.secure_url;
     }
+
+    const student = await Student.create(studentData);
+    res.status(201).json(student);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 
