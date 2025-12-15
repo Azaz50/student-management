@@ -35,8 +35,7 @@ app.use(express.json());
 // API routes for users
 // All routes defined in userRoutes will be prefixed with /api/users
 app.use('/api/users', userRoutes)
-app.use(auth);
-app.use('/api/students', studentRoutes);
+app.use('/api/students', auth, studentRoutes);
 
 // this middleware auto run on every api route of related to Multer error so image upload take multer help thats why image error give here (error handling)
 app.use((error, req, res, next) => {
@@ -48,6 +47,6 @@ app.use((error, req, res, next) => {
    next(); // if no error go to next route
 })
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
-});
+// app.listen(3000, () => {
+//     console.log("Server running on port 3000");
+// });
