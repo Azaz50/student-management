@@ -14,11 +14,22 @@ const connectDB = require('./config/db.js');
 require('dotenv').config();
 
 // Database Connection
-connectDB();
+// connectDB(); // Removed from here
+
+const ensureDbConnected = async (req, res, next) => {
+  try {
+    await connectDB();
+    return next();
+  } catch (error) {
+    console.error('Failed to connect to database on request:', error);
+    return res.status(500).json({ message: 'Internal Server Error: Could not connect to database.' });
+  }
+};
 
 app.use(cors({
   origin: "*"
 }));
+
 
 app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
     setHeaders: (res, path, stat) => {
@@ -34,8 +45,8 @@ app.use(express.json());
 // All routes defined in studentRoutes will be prefixed with /api/students
 // API routes for users
 // All routes defined in userRoutes will be prefixed with /api/users
-app.use('/api/users', userRoutes)
-app.use('/api/students', auth, studentRoutes);
+app.use('/api/users', ensureDbConnected, userRoutes)
+app.use('/api/students', ensureDbConnected, auth, studentRoutes);
 
 // this middleware auto run on every api route of related to Multer error so image upload take multer help thats why image error give here (error handling)
 app.use((error, req, res, next) => {
