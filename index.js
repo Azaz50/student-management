@@ -41,6 +41,10 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware to parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Student Management API!');
+});
+
 // API routes for students
 // All routes defined in studentRoutes will be prefixed with /api/students
 // API routes for users
