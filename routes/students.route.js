@@ -107,26 +107,60 @@ router.get('/:id', async (req, res) => {
 // });
 
 
+// router.post("/", upload.single("profile_pic"), async (req, res) => {
+//   try {
+//     const studentData = req.body;
+
+//     if (req.file) {
+//       const result = await cloudinary.uploader.upload(
+//         `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
+//         { folder: "students" }
+//       );
+
+//       studentData.profile_pic = result.secure_url;
+//     }
+
+//     const student = await Student.create(studentData);
+//     res.status(201).json(student);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+
+
 router.post("/", upload.single("profile_pic"), async (req, res) => {
   try {
-    const studentData = req.body;
+    let imageUrl = "";
 
     if (req.file) {
       const result = await cloudinary.uploader.upload(
         `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`,
-        { folder: "students" }
+        {
+          folder: "students",
+        }
       );
 
-      studentData.profile_pic = result.secure_url;
+      imageUrl = result.secure_url; // ✅ VERY IMPORTANT
     }
 
-    const student = await Student.create(studentData);
-    res.status(201).json(student);
+    const student = new Student({
+      ...req.body,
+      profile_pic: imageUrl, // save CLOUDINARY URL
+    });
+
+    const newStudent = await student.save();
+    res.status(201).json(newStudent);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
+
+
+
 
 
 //Update a Student
