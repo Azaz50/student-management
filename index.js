@@ -27,7 +27,7 @@ const ensureDbConnected = async (req, res, next) => {
 };
 
 app.use(cors({
-  origin: "*"
+  origin: ["https://peaceful-boba-169bf7.netlify.app"]
 }));
 
 
