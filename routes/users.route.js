@@ -4,7 +4,7 @@ const User = require('../models/users.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-// const multer = require('multer');
+const auth = require('../middleware/auth');
 dotenv.config();
 
 router.post('/register', async (req, res) => {
@@ -50,6 +50,55 @@ router.post('/login', async (req, res) => {
     }
 })
 
+// profile update and get routes
+
+router.get('/profile', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.token.userId).select('-password');
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', error: err.message });
+    }
+});
+
+router.put('/profile', auth, async (req, res) => {
+    try {
+        const { username, email } = req.body;
+        const updatedUser = await User.findByIdAndUpdate(
+            req.token.userId,
+            { username, email },
+            { new: true }
+        ).select('-password');
+        const token = jwt.sign(
+            { userId: updatedUser._id, username: updatedUser.username },
+             process.env.JWT_SECRET, 
+             { expiresIn: '1h' }
+            );
+        res.json({ updatedUser, token });
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', error: err.message });
+    }
+});
+
+router.put('/password', auth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.token.userId);
+
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ message: 'Invalid current password' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findByIdAndUpdate(req.token.userId, { password: hashedPassword });
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', error: err.message });
+    }
+});
+
 router.post('/logout', async (req, res) => {
     try {
         res.clearCookie('token');
@@ -57,7 +106,8 @@ router.post('/logout', async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: 'Internal server error', error: err.message});
     }
-})
+});
+
 
 
 module.exports = router;
