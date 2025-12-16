@@ -64,6 +64,16 @@ router.get('/profile', auth, async (req, res) => {
 router.put('/profile', auth, async (req, res) => {
     try {
         const { username, email } = req.body;
+
+        // Check for uniqueness
+        const existingUser = await User.findOne({
+            $or: [{ email }, { username }],
+            _id: { $ne: req.token.userId }
+        });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username or email already in use' });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.token.userId,
             { username, email },
@@ -71,7 +81,7 @@ router.put('/profile', auth, async (req, res) => {
         ).select('-password');
         const token = jwt.sign(
             { userId: updatedUser._id, username: updatedUser.username },
-             process.env.JWT_SECRET, 
+             process.env.JWT_SECRET,
              { expiresIn: '1h' }
             );
         res.json({ updatedUser, token });
@@ -79,7 +89,6 @@ router.put('/profile', auth, async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 });
-
 router.put('/password', auth, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
