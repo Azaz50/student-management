@@ -8,11 +8,8 @@ const cors = require('cors');
 const path = require('path')
 const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
 const helmet = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
-
-
-const studentRoutes = require('./routes/students.route.js');
-
 const connectDB = require('./config/db.js');
+const studentRoutes = require('./routes/students.route.js');
 require('dotenv').config();
 
 
@@ -48,8 +45,6 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-
-
 
 
 app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
