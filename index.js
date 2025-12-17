@@ -26,15 +26,32 @@ const ensureDbConnected = async (req, res, next) => {
   }
 };
 
-app.use(cors({ origin: 'https://peaceful-boba-169bf7.netlify.app', credentials: true }));
+app.use(cors({
+  origin: 'https://peaceful-boba-169bf7.netlify.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// VERY IMPORTANT: handle preflight
+app.options('*', cors());
+
 
 const limiter = rateLimit({
   windowMs: 1000 * 60,
-  max: 3,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: "Too many request from this IP, please try again later"
 })
 
-app.use(helmet()); // better use for server not localhost
+ // better use of helmet for server not localhost
+app.use( 
+  helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+  })
+);
 app.use(limiter);
 
 
