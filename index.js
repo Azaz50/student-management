@@ -29,6 +29,10 @@ const ensureDbConnected = async (req, res, next) => {
 app.use(cors());
 
 app.options('*', cors());
+// Middleware to parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded({ extended: false }));
+// Middleware to parse JSON bodies (as sent by API clients)
+app.use(express.json());
 
 app.use(
   helmet({
@@ -53,10 +57,7 @@ app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
         res.set('Cross-Origin-Resource-Policy', 'cross-origin');
     }
 }))
-// Middleware to parse URL-encoded bodies (as sent by HTML forms)
-app.use(express.urlencoded({ extended: false }));
-// Middleware to parse JSON bodies (as sent by API clients)
-app.use(express.json());
+
 
 app.get('/', (req, res) => {
   res.send('Welcome to the Student Management API!');
