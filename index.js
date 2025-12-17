@@ -27,32 +27,28 @@ const ensureDbConnected = async (req, res, next) => {
 };
 
 app.use(cors({
-  origin: 'https://peaceful-boba-169bf7.netlify.app',
+  origin: ['https://peaceful-boba-169bf7.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
-// VERY IMPORTANT: handle preflight
 app.options('*', cors());
 
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
 
 const limiter = rateLimit({
-  windowMs: 1000 * 60,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many request from this IP, please try again later"
-})
+  windowMs: 60 * 1000,
+  max: 100,
+  skip: (req) => req.method === 'OPTIONS'
+});
 
- // better use of helmet for server not localhost
-app.use( 
-  helmet({
-    crossOriginResourcePolicy: false,
-    crossOriginEmbedderPolicy: false,
-  })
-);
 app.use(limiter);
+
+
 
 
 app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
