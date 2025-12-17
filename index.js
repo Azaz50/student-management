@@ -6,8 +6,8 @@ const auth = require('./middleware/auth.js'); // for jwt authentication
 const userRoutes = require('./routes/users.route.js'); // for jwt authentication
 const cors = require('cors');
 const path = require('path')
-const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
-const helmet = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
+// const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
+// const helmet = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
 const connectDB = require('./config/db.js');
 const studentRoutes = require('./routes/students.route.js');
 require('dotenv').config();
@@ -31,20 +31,20 @@ app.use(express.urlencoded({ extended: false }));
 // Middleware to parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
-  })
-);
+// app.use(
+//   helmet({
+//     crossOriginResourcePolicy: { policy: "cross-origin" }
+//   })
+// );
 
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 100,
-  skip: (req) => req.method === 'OPTIONS'
-});
+// const limiter = rateLimit({
+//   windowMs: 60 * 1000,
+//   max: 100,
+//   skip: (req) => req.method === 'OPTIONS'
+// });
 
-app.use(limiter);
+// app.use(limiter);
 
 
 app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
