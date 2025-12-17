@@ -6,6 +6,8 @@ const auth = require('./middleware/auth.js'); // for jwt authentication
 const userRoutes = require('./routes/users.route.js'); // for jwt authentication
 const cors = require('cors')
 const path = require('path')
+const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
+const rateLimit = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
 
 
 const studentRoutes = require('./routes/students.route.js');
@@ -13,8 +15,6 @@ const studentRoutes = require('./routes/students.route.js');
 const connectDB = require('./config/db.js');
 require('dotenv').config();
 
-// Database Connection
-// connectDB(); // Removed from here
 
 const ensureDbConnected = async (req, res, next) => {
   try {
@@ -26,9 +26,18 @@ const ensureDbConnected = async (req, res, next) => {
   }
 };
 
+const limiter = rateLimit({
+  windowMs: 1000 * 60,
+  max: 2,
+  message: "Too many request from this IP, please try again later"
+})
+
 app.use(cors({
   origin: "*"
 }));
+
+app.use(helmet()); // better use for server not localhost
+app.use(limiter);
 
 
 app.use('/uploads', express.static(path.join(__dirname,'uploads'), {
