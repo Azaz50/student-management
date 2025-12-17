@@ -7,7 +7,7 @@ const userRoutes = require('./routes/users.route.js'); // for jwt authentication
 const cors = require('cors');
 const path = require('path')
 const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
-const rateLimit = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
+const helmet = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
 
 
 const studentRoutes = require('./routes/students.route.js');
