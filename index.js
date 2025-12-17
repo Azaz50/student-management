@@ -30,7 +30,7 @@ app.use(cors({ origin: 'https://peaceful-boba-169bf7.netlify.app', credentials: 
 
 const limiter = rateLimit({
   windowMs: 1000 * 60,
-  max: 2,
+  max: 3,
   message: "Too many request from this IP, please try again later"
 })
 
