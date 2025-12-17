@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const { MulterError } = require('multer');
 const auth = require('./middleware/auth.js'); // for jwt authentication
 const userRoutes = require('./routes/users.route.js'); // for jwt authentication
-const cors = require('cors')
+const cors = require('cors');
 const path = require('path')
 const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
 const rateLimit = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
@@ -26,15 +26,13 @@ const ensureDbConnected = async (req, res, next) => {
   }
 };
 
+app.use(cors({ origin: 'https://peaceful-boba-169bf7.netlify.app', credentials: true }));
+
 const limiter = rateLimit({
   windowMs: 1000 * 60,
   max: 2,
   message: "Too many request from this IP, please try again later"
 })
-
-app.use(cors({
-  origin: "*"
-}));
 
 app.use(helmet()); // better use for server not localhost
 app.use(limiter);
