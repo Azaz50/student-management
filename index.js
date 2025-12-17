@@ -35,10 +35,12 @@ app.use(cors({
 
 app.options('*', cors());
 
-app.use(helmet({
-  crossOriginResourcePolicy: false,
-  crossOriginEmbedderPolicy: false
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  })
+);
+
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
