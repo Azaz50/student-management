@@ -41,7 +41,7 @@ app.use(
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 5, // limit each IP to 5 requests per windowMs
+  max: 100, // limit each IP to 5 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests from this IP, please try again after a minute"
