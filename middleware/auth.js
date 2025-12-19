@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/users.model');
 
 const auth = async (req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
     try{
         const bearerHeader = req.headers['authorization'];
         if(typeof bearerHeader !== 'undefined'){
