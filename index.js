@@ -24,7 +24,9 @@ const ensureDbConnected = async (req, res, next) => {
 };
 
 app.use(cors({
-  origin: "*"
+  origin: 'https://peaceful-boba-169bf7.netlify.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Middleware to parse URL-encoded bodies (as sent by HTML forms)
