@@ -6,6 +6,10 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const auth = require('../middleware/auth');
 dotenv.config();
+const multer = require('multer');
+const nodemailer = require('nodemailer')
+
+
 
 router.post('/register', async (req, res) => {
     try {
@@ -117,6 +121,62 @@ router.post('/logout', async (req, res) => {
     }
 });
 
+// #################################### send email ###########################
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 1024 * 1024 * 10 // 10MB (adjust if needed)
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.PASS
+  }
+});
+
+router.post('/send-email', upload.single('file'), async (req, res) => {
+  const { to, subject, text } = req.body;
+
+  try {
+    const mailOptions = {
+      from: `"Azaz Mohammad" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text,
+    };
+
+    // attach file if uploaded
+    if (req.file) {
+      mailOptions.attachments = [
+        {
+          filename: req.file.originalname,
+          content: req.file.buffer,
+        }
+      ];
+    }
+
+    const info = await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      success: true,
+      message: 'Email sent successfully',
+      messageId: info.messageId
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send email',
+      error: error.message
+    });
+  }
+});
 
 
 module.exports = router;

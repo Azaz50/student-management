@@ -39,7 +39,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: fileFilter,
-  limits: { fileSize: 1024 * 1024 * 3 },
+  limits: { fileSize: 1024 * 1024 * 5 },
 });
 
 // @@@@@@@@@@@@@@@@@@@@@@ end of step 1 @@@@@@@@@@@@@@@@@@@
@@ -170,6 +170,3 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
-
-module.exports = router;
