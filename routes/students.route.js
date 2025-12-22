@@ -171,4 +171,32 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// pdf generation 
+router.get('/:id/generate-pdf', async (req, res) => {
+    try {
+        const student = await Student.findOne({ _id: req.params.id, user: req.token.userId });
+        if (!student){
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        const pdfContent = `
+            Student Report
+            ----------------
+            Image: ${student.profile_pic}
+            ID: ${student._id}
+            Name: ${student.first_name} ${student.last_name}
+            Email: ${student.email}
+            Phone: ${student.phone}
+            Gender: ${student.gender}
+        `;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=${student.first_name}_report.pdf`);
+        res.send(Buffer.from(pdfContent)); // Replace with actual PDF buffer
+
+    }catch(err) {
+        res.status(500).json({ message: err.message });
+    }
+})
+
 module.exports = router;
