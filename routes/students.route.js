@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs'); // use to delete image
 const Student = require('../models/students.model');
 const cloudinary = require("../config/cloudinary");
+const excel = require('exceljs');
+
 
 
 //################################ for image upload ##############################
@@ -198,5 +200,38 @@ router.get('/:id/generate-pdf', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 })
+
+
+// download excel sheet of student list
+router.get('/download/excel', async (req, res) => {
+    try {
+        const students = await Student.find({ user: req.token.userId });
+
+        const workbook = new excel.Workbook();
+        const worksheet = workbook.addWorksheet('Students');
+
+        worksheet.columns = [
+            { header: 'ID', key: '_id', width: 30 },
+            { header: 'First Name', key: 'first_name', width: 20 },
+            { header: 'Last Name', key: 'last_name', width: 20 },
+            { header: 'Email', key: 'email', width: 30 },
+            { header: 'Phone', key: 'phone', width: 20 },
+            { header: 'Gender', key: 'gender', width: 10 }
+        ];
+
+        students.forEach(student => {
+            worksheet.addRow(student);
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=students.xlsx');
+
+        await workbook.xlsx.write(res);
+        res.end();
+
+    }catch(err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 module.exports = router;
