@@ -8,8 +8,10 @@ const cors = require('cors');
 const path = require('path')
 const rateLimit = require('express-rate-limit'); // rate limit to protect your site from attacker to send max request at a time
 const helmet = require('helmet'); // helmet to restrict your site to see your backend or frontend technology
+const minifyHTML =  require('express-minify-html-terser');
 const connectDB = require('./config/db.js');
 const studentRoutes = require('./routes/students.route.js');
+const compression = require('compression');
 require('dotenv').config();
 
 
@@ -31,6 +33,22 @@ app.use(cors({
 app.use(express.urlencoded({ extended: false }));
 // Middleware to parse JSON bodies (as sent by API clients)
 app.use(express.json());
+//compression
+app.use(compression());
+
+// code minify
+app.use(minifyHTML({
+    override:      true,
+    exception_url: false,
+    htmlMinifier: {
+        removeComments:            true,
+        collapseWhitespace:        true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes:     true,
+        removeEmptyAttributes:     true,
+        minifyJS:                  true
+    }
+}))
 
 app.use(
   helmet({
