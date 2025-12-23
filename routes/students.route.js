@@ -46,10 +46,19 @@ const upload = multer({
 
 // @@@@@@@@@@@@@@@@@@@@@@ end of step 1 @@@@@@@@@@@@@@@@@@@
 
+const myCache = require('../cache');
 // Get All Students
 router.get('/', async (req, res) => {
     try {
         const { search, page = 1, limit = 3 } = req.query;
+        const cacheKey = `students_search=${search}_page=${page}_limit=${limit}`;
+
+        const cachedData = myCache.get(cacheKey);
+        if (cachedData) {
+            console.log('Data from cache');
+            return res.json(cachedData);
+        }
+        console.log('Data from db');
 
         let query = { user: req.token.userId };
         if (search) {
@@ -66,11 +75,15 @@ router.get('/', async (req, res) => {
 
         const count = await Student.countDocuments(query);
 
-        res.json({
+        const data = {
             students,
             totalPage: Math.ceil(count / limit),
             currentPage: page
-        });
+        };
+
+        myCache.set(cacheKey, data, 60); // Cache for 60 seconds
+
+        res.json(data);
 
     }catch(err) {
         res.status(500).json({ message: err.message });
