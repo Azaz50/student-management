@@ -13,6 +13,9 @@ const connectDB = require('./config/db.js');
 const studentRoutes = require('./routes/students.route.js');
 const compression = require('compression');
 require('dotenv').config();
+//node cache
+const NodeCache = require( "node-cache" );
+const myCache = new NodeCache();
 
 
 const ensureDbConnected = async (req, res, next) => {
