@@ -11,6 +11,7 @@ const helmet = require('helmet'); // helmet to restrict your site to see your ba
 const minifyHTML =  require('express-minify-html-terser');
 const connectDB = require('./config/db.js');
 const studentRoutes = require('./routes/students.route.js');
+const paymentRoutes = require('./routes/payment.route.js');
 const compression = require('compression');
 const myCache = require('./cache');
 require('dotenv').config();
@@ -82,6 +83,11 @@ app.get('/', (req, res) => {
 // All routes defined in userRoutes will be prefixed with /api/users
 app.use('/api/users', ensureDbConnected, userRoutes)
 app.use('/api/students', ensureDbConnected, auth, studentRoutes);
+app.use('/api/payment', ensureDbConnected, auth, paymentRoutes);
+
+app.get('/api/get-razorpay-key', (req, res) => {
+  res.json({ key: process.env.RAZORPAY_KEY_ID });
+});
 
 // this middleware auto run on every api route of related to Multer error so image upload take multer help thats why image error give here (error handling)
 app.use((error, req, res, next) => {
